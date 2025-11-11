@@ -1,7 +1,8 @@
 {
-  "functions": {
-    "api/*.js": {
-      "maxDuration": 10
-    }
-  }
+  "version": 2,
+  "builds": [{ "src": "api/*.js", "use": "@vercel/node" }],
+  "routes": [
+    { "src": "/behance", "dest": "/api/behance.js" },
+    { "src": "/stats", "dest": "/api/stats.js" }
+  ]
 }

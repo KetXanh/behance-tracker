@@ -1,33 +1,42 @@
-import geoip from "geoip-lite";
-import uaParser from "ua-parser-js";
+import { createClient } from "@supabase/supabase-js";
 import requestIp from "request-ip";
+import geoip from "geoip-lite";
+import UAParser from "ua-parser-js";
 
-// Log lưu memory
-let clicks = [];
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_KEY
+);
 
-export default function handler(req, res) {
-  const ip = requestIp.getClientIp(req) || "Unknown";
-  const geo = geoip.lookup(ip) || {};
-  const ua = uaParser(req.headers["user-agent"] || "");
+export default async function handler(req, res) {
+  try {
+    const ip =
+      requestIp.getClientIp(req) || req.headers["x-forwarded-for"] || "unknown";
+    const geo = geoip.lookup(ip) || {};
+    const ua = new UAParser(req.headers["user-agent"] || "");
 
-  const log = {
-    time: new Date().toLocaleString("vi-VN"),
-    ip,
-    city: geo.city || "Unknown",
-    country: geo.country || "VN",
-    device: `${ua.device.type || "desktop"} - ${ua.os.name || ""} ${
-      ua.os.version || ""
-    }`,
-    browser: `${ua.browser.name || ""} ${ua.browser.version || ""}`,
-    referrer: req.headers["referer"] || "Direct",
-  };
+    const payload = {
+      time: new Date().toISOString(),
+      ip,
+      city: geo.city || null,
+      country: geo.country || null,
+      device: `${ua.getDevice().type || "desktop"} - ${ua.getOS().name || ""} ${
+        ua.getOS().version || ""
+      }`.trim(),
+      browser: `${ua.getBrowser().name || ""} ${
+        ua.getBrowser().version || ""
+      }`.trim(),
+      referrer: req.headers.referer || "Direct",
+    };
 
-  clicks.push(log);
+    const { error } = await supabase.from("clicks").insert([payload]);
+    if (error) console.error("Supabase insert error:", error);
 
-  // Redirect tới Behance
-  res.writeHead(302, { Location: "https://www.behance.net/" });
-  res.end();
+    res.writeHead(302, { Location: "https://www.behance.net/" });
+    res.end();
+  } catch (err) {
+    console.error("behance handler error:", err);
+    res.writeHead(302, { Location: "https://www.behance.net/" });
+    res.end();
+  }
 }
-
-// Export clicks để stats dùng
-export { clicks };

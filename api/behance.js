@@ -1,18 +1,13 @@
-// api/behance.js
 import geoip from "geoip-lite";
 import uaParser from "ua-parser-js";
 import requestIp from "request-ip";
 
-let clicks = []; // dùng memory vì fs không dùng được trên Vercel
+// Log lưu memory
+let clicks = [];
 
 export default function handler(req, res) {
-  // Lấy IP
   const ip = requestIp.getClientIp(req) || "Unknown";
-
-  // Geo info
   const geo = geoip.lookup(ip) || {};
-
-  // User agent
   const ua = uaParser(req.headers["user-agent"] || "");
 
   const log = {
@@ -29,7 +24,10 @@ export default function handler(req, res) {
 
   clicks.push(log);
 
-  // Redirect
+  // Redirect tới Behance
   res.writeHead(302, { Location: "https://www.behance.net/" });
   res.end();
 }
+
+// Export clicks để stats dùng
+export { clicks };

@@ -7,9 +7,9 @@ export default function handler(req, res) {
   } catch (e) {}
 
   let html = `
-    <h1>Behance Click Tracker (VN)</h1>
-    <p><b>Tổng: ${clicks.length} lượt bấm</b></p>
-    <table border="1" cellpadding="5">
+    <h1>Behance Click Tracker</h1>
+    <p><b>Tổng số: ${clicks.length} lượt click</b></p>
+    <table border="1" cellpadding="6" cellspacing="0">
       <tr><th>Thời gian</th><th>Thành phố</th><th>Thiết bị</th><th>Nguồn</th></tr>
   `;
 
@@ -20,6 +20,6 @@ export default function handler(req, res) {
       html += `<tr><td>${c.time}</td><td>${c.city}</td><td>${c.device}</td><td>${c.referrer}</td></tr>`;
     });
 
-  html += `</table><hr><small>© 2025 - Vercel</small>`;
+  html += `</table><hr><small>© ${new Date().getFullYear()}</small>`;
   res.send(html);
 }

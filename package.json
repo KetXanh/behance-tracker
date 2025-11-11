@@ -1,0 +1,13 @@
+{
+  "name": "behance-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "request-ip": "^3.3.0",
+    "geoip-lite": "^1.4.7",
+    "ua-parser-js": "^1.0.35"
+  }
+}
